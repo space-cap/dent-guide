@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { ChatForm } from '@/components/chat/chat-form';
 import { ChatMessage } from '@/components/chat/chat-message';
-import type { AskResponseBody } from '@/lib/types';
+import type { AskResponseBody, ChatHistoryMessage } from '@/lib/types';
 
 type Message = {
   id: string;
@@ -13,21 +13,34 @@ type Message = {
   meta?: string;
 };
 
-const suggestedQuestions = [
-  '지르코니아 크라운 얼마야?',
+const assistantName = '덴티';
+const starterSuggestions = [
   '임플란트 비용 알려줘',
-  '레진 충전 가격 궁금해',
-  '골이식 비용은?',
-  '크라운 얼마야?',
+  '앞니를 자연스럽게 씌우는 비용이 궁금해요',
+  '골이식도 같이 필요한지 궁금해',
+  '크라운은 재질별로 어떻게 달라?',
 ];
 
+const initialAssistantMessage: Message = {
+  id: 'assistant-welcome',
+  role: 'assistant',
+  content:
+    '안녕하세요. 저는 가격 상담 도우미 덴티예요. 치료 이름을 정확히 몰라도 괜찮아요. 증상이나 원하는 느낌을 말씀해 주시면 비용 범위와 다음 질문까지 자연스럽게 안내해드릴게요.',
+  meta: '상담 시작',
+};
+
+function toHistory(messages: Message[]): ChatHistoryMessage[] {
+  return messages.slice(-8).map((message) => ({ role: message.role, content: message.content }));
+}
+
 export function ChatWidget() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([initialAssistantMessage]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>(starterSuggestions);
 
-  const emptyStateText = useMemo(
-    () => '정확한 가격은 JSON 데이터 기준으로만 답변합니다. 애매한 표현은 가능한 경우에만 OpenAI가 보조 해석합니다.',
+  const statusText = useMemo(
+    () => '가격은 내부 JSON 데이터 기준으로만 안내되고, OpenAI는 자연스러운 상담 흐름과 애매한 표현 해석을 보조합니다.',
     [],
   );
 
@@ -38,7 +51,9 @@ export function ChatWidget() {
       content: question,
     };
 
-    setMessages((previous) => [...previous, userMessage]);
+    const nextMessages = [...messages, userMessage];
+
+    setMessages(nextMessages);
     setLoading(true);
     setError(null);
 
@@ -48,7 +63,10 @@ export function ChatWidget() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({
+          question,
+          history: toHistory(nextMessages),
+        }),
       });
 
       const data = (await response.json()) as AskResponseBody;
@@ -62,13 +80,13 @@ export function ChatWidget() {
         role: 'assistant',
         content: data.answer,
         meta: [
-          `매칭: ${data.matchType}`,
-          data.usedAI ? 'AI 보조 사용' : '규칙 기반 우선',
-          `버전: ${data.version}`,
+          data.supportMode === 'price_found' ? '가격 안내' : data.supportMode === 'clarify' ? '추가 확인 필요' : '상담 유도',
+          data.usedAI ? 'AI 보조' : '규칙 기반',
         ].join(' · '),
       };
 
       setMessages((previous) => [...previous, assistantMessage]);
+      setSuggestions(data.followUpSuggestions);
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : '알 수 없는 오류가 발생했습니다.';
       setError(message);
@@ -77,18 +95,37 @@ export function ChatWidget() {
     }
   }
 
+  function resetConversation() {
+    setMessages([initialAssistantMessage]);
+    setSuggestions(starterSuggestions);
+    setError(null);
+  }
+
   return (
     <section className="chatWidget">
-      <div className="panelHeader">
-        <div>
-          <p className="eyebrow">Dental Price QA MVP</p>
-          <h2>질문형 가격 안내</h2>
+      <div className="panelHeader panelHeaderChat">
+        <div className="assistantProfile">
+          <img className="assistantHeroAvatar" src="/mascot-denti.svg" alt="덴티 캐릭터" width={68} height={68} />
+          <div>
+            <p className="eyebrow">Dental Consultation Assistant</p>
+            <h2>{assistantName}와 상담하기</h2>
+            <p className="assistantStatus">실시간 가격 안내 · 맥락 이어서 대화 가능</p>
+          </div>
         </div>
-        <span className="badge">Vercel + JSON</span>
+        <div className="chatHeaderActions">
+          <span className="badge">Vercel + JSON + OpenAI</span>
+          <button type="button" className="secondaryButton resetButton" onClick={resetConversation} disabled={loading}>
+            대화 새로 시작
+          </button>
+        </div>
       </div>
 
-      <div className="suggestions">
-        {suggestedQuestions.map((question) => (
+      <div className="assistantOverviewCard">
+        <p>{statusText}</p>
+      </div>
+
+      <div className="suggestions suggestionsTop">
+        {suggestions.map((question) => (
           <button
             key={question}
             type="button"
@@ -104,10 +141,16 @@ export function ChatWidget() {
       </div>
 
       <div className="messagesArea">
-        {messages.length === 0 ? <p className="emptyState">{emptyStateText}</p> : null}
         {messages.map((message) => (
-          <ChatMessage key={message.id} role={message.role} content={message.content} meta={message.meta} />
+          <ChatMessage
+            key={message.id}
+            role={message.role}
+            content={message.content}
+            meta={message.meta}
+            assistantName={assistantName}
+          />
         ))}
+        {loading ? <p className="emptyState">덴티가 답변을 정리하고 있어요...</p> : null}
         {error ? <p className="errorText">오류: {error}</p> : null}
       </div>
 

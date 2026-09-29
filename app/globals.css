@@ -197,6 +197,10 @@ main {
   margin-bottom: 20px;
 }
 
+.panelHeaderChat {
+  align-items: flex-start;
+}
+
 .badge {
   padding: 8px 12px;
   border-radius: 999px;
@@ -206,8 +210,63 @@ main {
   font-weight: 700;
 }
 
+.assistantProfile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.assistantHeroAvatar,
+.introMascotImage,
+.messageAvatar {
+  display: block;
+}
+
+.assistantHeroAvatar {
+  width: 68px;
+  height: 68px;
+  flex: 0 0 auto;
+}
+
+.assistantStatus,
+.chatFormHint {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.chatHeaderActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.resetButton {
+  min-height: 40px;
+  padding: 0 16px;
+}
+
+.assistantOverviewCard {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eef6ff 0%, #f7fbff 100%);
+  border: 1px solid var(--border);
+}
+
+.assistantOverviewCard p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
 .suggestions {
   margin-bottom: 20px;
+}
+
+.suggestionsTop {
+  margin-bottom: 18px;
 }
 
 .suggestionChip {
@@ -236,6 +295,22 @@ main {
 .messageCard {
   padding: 16px 18px;
   border-radius: 18px;
+}
+
+.messageShell {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.messageAvatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+}
+
+.messageContent {
+  flex: 1 1 auto;
 }
 
 .messageUser {
@@ -267,6 +342,13 @@ main {
   margin-top: 18px;
 }
 
+.chatFormFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .chatTextarea {
   width: 100%;
   resize: vertical;
@@ -290,6 +372,22 @@ main {
 
 .errorText {
   color: var(--danger);
+}
+
+.chatIntroRich {
+  overflow: hidden;
+}
+
+.introMascotCard {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.introMascotImage {
+  width: 120px;
+  height: 120px;
+  flex: 0 0 auto;
 }
 
 .srOnly {
@@ -322,6 +420,17 @@ main {
   .chatIntro,
   .infoCard {
     padding: 20px;
+  }
+
+  .introMascotCard,
+  .panelHeaderChat,
+  .chatFormFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chatHeaderActions {
+    align-items: stretch;
   }
 
   main {

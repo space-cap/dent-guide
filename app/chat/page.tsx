@@ -4,29 +4,34 @@ export default function ChatPage() {
   return (
     <main className="chatPage">
       <div className="chatLayout">
-        <section className="chatIntro">
-          <p className="eyebrow">실사용 흐름 검증</p>
-          <h1>어떤 치료 비용이 궁금하신가요?</h1>
-          <p>
-            환자가 자주 묻는 질문을 자연어로 입력하면, 공개 정책에 맞는 방식으로 가격을 안내합니다.
-            민감한 항목은 범위 또는 상담 안내로만 응답합니다.
-          </p>
+        <section className="chatIntro chatIntroRich">
+          <div className="introMascotCard">
+            <img className="introMascotImage" src="/mascot-denti.svg" alt="덴티 캐릭터" width={120} height={120} />
+            <div>
+              <p className="eyebrow">실제 상담형 챗봇</p>
+              <h1>덴티가 치료 비용 상담을 도와드릴게요</h1>
+              <p>
+                치료명을 정확히 모르셔도 괜찮아요. “앞니를 자연스럽게 씌우고 싶어요”, “빠진 치아 심는 거 비용은요?”처럼
+                편하게 말씀하시면 대화 맥락을 이어서 가격, 범위, 추가 확인사항까지 자연스럽게 안내합니다.
+              </p>
+            </div>
+          </div>
 
           <div className="infoStack">
             <div className="infoCard compact">
-              <h2>응답 정책</h2>
+              <h2>상담 방식</h2>
               <ul>
-                <li>exact: 정확한 가격</li>
-                <li>range: 범위형 가격</li>
-                <li>inquiry_only: 상담 유도</li>
+                <li>이전 대화 맥락을 참고해 후속 질문 처리</li>
+                <li>가격 안내 후 다음에 물을 만한 질문까지 제안</li>
+                <li>모호한 경우에는 바로 재질/치료 종류를 다시 확인</li>
               </ul>
             </div>
             <div className="infoCard compact">
               <h2>안전 장치</h2>
               <ul>
                 <li>가격은 JSON 데이터만 사용</li>
-                <li>OpenAI는 질문 해석만 보조</li>
-                <li>매칭 실패 시 추측하지 않음</li>
+                <li>OpenAI는 질문 해석과 말투 보조만 담당</li>
+                <li>찾지 못한 가격은 추측하지 않고 상담으로 연결</li>
               </ul>
             </div>
           </div>

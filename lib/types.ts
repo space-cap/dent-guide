@@ -55,9 +55,17 @@ export type SearchResult =
       candidates: PriceMatchCandidate[];
     };
 
+export type ChatHistoryMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
 export type AskRequestBody = {
   question: string;
+  history?: ChatHistoryMessage[];
 };
+
+export type AssistantSupportMode = 'price_found' | 'clarify' | 'consult';
 
 export type AskResponseBody =
   | {
@@ -74,6 +82,9 @@ export type AskResponseBody =
       version: string;
       candidates?: string[];
       usedAI?: boolean;
+      assistantName: string;
+      supportMode: AssistantSupportMode;
+      followUpSuggestions: string[];
     }
   | {
       ok: false;
@@ -83,4 +94,9 @@ export type AskResponseBody =
 export type OpenAINormalizationResult = {
   normalizedItemName: string | null;
   reason?: string;
+};
+
+export type OpenAIConsultationReply = {
+  message: string;
+  suggestions?: string[];
 };

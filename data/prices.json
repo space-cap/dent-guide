@@ -42,7 +42,7 @@
       "id": "crown-zirconia",
       "category": "크라운",
       "itemName": "지르코니아 크라운",
-      "aliases": ["지르코니아", "흰색 크라운", "하얀 크라운", "앞니 하얀 크라운"],
+      "aliases": ["지르코니아", "흰색 크라운", "하얀 크라운", "앞니 하얀 크라운", "자연스럽게 하얗게 씌우기", "앞니 하얀 보철"],
       "displayType": "exact",
       "price": 500000,
       "public": true,
@@ -88,13 +88,13 @@
       "id": "implant-osstem",
       "category": "임플란트",
       "itemName": "오스템 임플란트",
-      "aliases": ["임플란트", "오스템", "오스템 임플란트", "치아 심기"],
+      "aliases": ["임플란트", "오스템", "오스템 임플란트", "치아 심기", "치아 심는 거", "빠진 치아 심는 거"],
       "displayType": "range",
       "minPrice": 990000,
       "maxPrice": 1490000,
       "public": true,
       "note": "뼈이식 여부와 보철 재료에 따라 최종 비용은 달라질 수 있습니다.",
-      "keywords": ["식립", "인공치아", "빠진치아"]
+      "keywords": ["식립", "인공치아", "빠진치아", "빠진 치아", "심는 거"]
     },
     {
       "id": "implant-bone-graft",

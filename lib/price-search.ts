@@ -11,11 +11,22 @@ function normalizeText(value: string): string {
     .trim();
 }
 
+function compactText(value: string): string {
+  return normalizeText(value).replace(/\s+/g, '');
+}
+
 function includesNormalized(source: string, target: string): boolean {
   const normalizedSource = normalizeText(source);
   const normalizedTarget = normalizeText(target);
+  const compactSource = compactText(source);
+  const compactTarget = compactText(target);
 
-  return normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource);
+  return (
+    normalizedSource.includes(normalizedTarget) ||
+    normalizedTarget.includes(normalizedSource) ||
+    compactSource.includes(compactTarget) ||
+    compactTarget.includes(compactSource)
+  );
 }
 
 function getItemTokens(item: PriceItem): string[] {
@@ -50,11 +61,29 @@ function scoreItem(question: string, item: PriceItem): PriceMatchCandidate | nul
     };
   }
 
+  if (compactText(question).includes(compactText(item.itemName))) {
+    return {
+      item,
+      score: 88,
+      matchType: 'direct',
+      matchedOn: item.itemName,
+    };
+  }
+
   for (const alias of item.aliases ?? []) {
     if (includesNormalized(question, alias)) {
       return {
         item,
         score: 84,
+        matchType: 'alias',
+        matchedOn: alias,
+      };
+    }
+
+    if (compactText(question).includes(compactText(alias))) {
+      return {
+        item,
+        score: 82,
         matchType: 'alias',
         matchedOn: alias,
       };
@@ -116,6 +145,7 @@ export function getPublicItems(): PriceItem[] {
 }
 
 export function findPriceItem(question: string): SearchResult {
+  const normalizedQuestion = normalizeText(question);
   const candidates = dedupeCandidates(
     getPublicItems()
       .map((item) => scoreItem(question, item))
@@ -130,19 +160,36 @@ export function findPriceItem(question: string): SearchResult {
   }
 
   const [top, second] = candidates;
-
-  const isCategoryOnlyQuestion = ['크라운', '보철', '임플란트', '충전', '신경치료'].some((categoryKeyword) =>
-    normalizeText(question).includes(normalizeText(categoryKeyword)),
+  const categoryKeywords = ['크라운', '보철', '임플란트', '충전', '신경치료', '심미치료', '상담'];
+  const matchedCategoryKeyword = categoryKeywords.find((categoryKeyword) =>
+    normalizedQuestion.includes(normalizeText(categoryKeyword)),
   );
 
-  if (second && top.score - second.score <= 6 && isCategoryOnlyQuestion) {
+  if (matchedCategoryKeyword && top.score < 90) {
+    const categoryCandidates = candidates.filter((candidate) => {
+      const normalizedCategory = normalizeText(candidate.item.category);
+      const normalizedItemName = normalizeText(candidate.item.itemName);
+      const keyword = normalizeText(matchedCategoryKeyword);
+
+      return normalizedCategory.includes(keyword) || normalizedItemName.includes(keyword);
+    });
+
+    if (categoryCandidates.length >= 2) {
+      return {
+        type: 'ambiguous',
+        candidates: categoryCandidates.slice(0, 3),
+      };
+    }
+  }
+
+  if (second && top.score - second.score <= 6 && top.score < 90) {
     return {
       type: 'ambiguous',
       candidates: candidates.slice(0, 3),
     };
   }
 
-  if (top.score < 65) {
+  if (top.score < 68) {
     return {
       type: 'not_found',
       candidates: candidates.slice(0, 3),
