@@ -45,6 +45,16 @@ Vercel 또는 로컬 환경에 아래 값을 설정한다.
 
 ## 4. Vercel 배포
 
+### 검색 노출 차단 기본값
+이 MVP는 경쟁 치과 노출 리스크를 줄이기 위해 기본적으로 검색엔진 색인을 막도록 설정되어 있다.
+
+적용 방식:
+- `app/layout.tsx`의 robots 메타데이터
+- `app/robots.ts`의 robots 정책
+- `next.config.js`의 `X-Robots-Tag` 헤더
+
+즉, 배포 후에도 기본값은 `noindex` 상태다.
+
 ### 절차
 1. Git 저장소 연결
 2. Vercel에서 프로젝트 import
@@ -79,3 +89,5 @@ Vercel 또는 로컬 환경에 아래 값을 설정한다.
 - `크라운 얼마야?` 질문 시 다중 후보 안내가 되는가
 - `골이식 비용은?` 질문 시 상담 유도 응답이 되는가
 - OpenAI 키가 없을 때도 서버 에러가 나지 않는가
+- 응답 헤더에 `X-Robots-Tag: noindex, nofollow, noarchive`가 포함되는가
+- `robots.txt`가 전체 크롤링 차단으로 응답되는가

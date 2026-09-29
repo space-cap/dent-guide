@@ -55,3 +55,4 @@
 - `/chat` 질문 UI
 - 규칙 기반 검색 + 선택적 OpenAI fallback
 - Vercel 배포를 고려한 정적 JSON 구조
+- 기본 검색엔진 비노출(`noindex`) 설정
